@@ -1,5 +1,7 @@
 import pandas as pd
+
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 
 class LimitOrderBook:
     """The Limit Order Book (LOB)."""
@@ -34,7 +36,6 @@ class LimitOrderBook:
     
     def spread(self) : 
         return self.best_ask()['Price'] - self.best_bid()['Price']
-    
 
     def __del__(self):
         """Delete this limit order book."""
@@ -55,11 +56,38 @@ class LimitOrderBook:
         top_asks = self._book.loc[self._book['Side']=='Ask'].sort_values(by='Price', ascending=True).iloc[:depth]
         top_bids = self._book.loc[self._book['Side']=='Bid'].sort_values(by='Price', ascending=False).iloc[:depth]
 
-        print(top_asks)
-        print(top_bids)
-        fig = plt.figure()
-        plt.bar(top_asks.Price, top_asks.Quantity, color='red', width=0.01)
-        plt.bar(top_bids.Price, top_bids.Quantity, color='blue', width=0.01)
+        mid_price = 0.5*(self.best_ask()['Price']+self.best_bid()['Price'])
+        fig, ax = plt.subplots()
+        ax.axvline(x=0, color='black', label=f'Mid-Price={mid_price}')
+        ax.bar(top_asks.Price-mid_price, top_asks.Quantity, color='red', width=0.1, edgecolor='black', label='Asks')
+        ax.bar(top_bids.Price-mid_price, top_bids.Quantity, color='blue', width=0.1, edgecolor='black', label='Bids')
+
+        ax.xaxis.set_major_formatter('{x:1.2f}')
+        ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+
+        ax.set_xlabel('Quantity')
+        ax.set_xlabel('Quantity')
+        plt.legend(frameon=True)
+        plt.show()
+
+    def display_aggregated(self, depth=3):
+        """Plot a book with specified depth. 
+        Aggregation."""
+        top_asks = self._book.loc[self._book['Side']=='Ask'].sort_values(by='Price', ascending=True).iloc[:depth]
+        top_bids = self._book.loc[self._book['Side']=='Bid'].sort_values(by='Price', ascending=False).iloc[:depth]
+
+        mid_price = 0.5*(self.best_ask()['Price']+self.best_bid()['Price'])
+        fig, ax = plt.subplots()
+        ax.axvline(x=0, color='black', label=f'Mid-Price={mid_price}')
+        ax.bar(top_asks.Price-mid_price, top_asks.Quantity, color='red', width=0.1, edgecolor='black', label='Asks')
+        ax.bar(top_bids.Price-mid_price, top_bids.Quantity, color='blue', width=0.1, edgecolor='black', label='Bids')
+
+        ax.xaxis.set_major_formatter('{x:1.2f}')
+        ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+
+        ax.set_xlabel('Quantity')
+        ax.set_xlabel('Quantity')
+        plt.legend(frameon=True)
         plt.show()
 
 
